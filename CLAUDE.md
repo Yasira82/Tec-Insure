@@ -1,15 +1,80 @@
-# TEC Domain App Template — Claude Code Instructions
+# TEC Insure — Claude Code Instructions
 
-## What This Repo Is
+> ⚡ **SESSION START:** اقرأ `knowledge-base/C-02___CURRENT_STATE_.md` + **app charter
+> `knowledge-base/C-129___INSURE_RISK_PROTECTION_RUNTIME.md`** من `yasira82/tec-knowledge-base` (branch: `main`).
 
-The **golden starter template** for a new app in the TEC Federated Platform.
-It ships a correct, Portal-ready skeleton: Hub SSO, dual-mode Pi payments,
-CSRF, legal pages, and CI policy guards. Clone it, run the "New app setup"
-checklist below, and you have a compliant app — no missing pieces.
+## What This App Is
 
-**Reference of record:** `yasira82/tec-knowledge-base` — especially
-`C-12_Dual_Mode_Payment.md` (payment + anti-regression) and
-`audits/PORTAL_SUBMISSION_RUNBOOK_*.md`.
+**The Risk Protection Runtime** of the Pi economy (C-129) — the **System of
+Protection**. Insure answers one question:
+
+```
+"How do I protect myself, my assets, and my activities?"
+```
+
+Insure sits between verification and execution: **Zone verifies what can be
+trusted; Insure protects what has been trusted.** It provides risk scoring,
+escrow, dispute resolution, a recovery center, and beneficiary management —
+so every economic interaction has a defined protection layer.
+
+Built from `tec-template-base` (Next.js 15 frontend).
+
+**Current Phase: Insure V0/V1 — Risk Protection preview (read-only).** Identity /
+domain / slug / legal + a themed home (**risk score** + the protection surfaces:
+escrow · dispute · recovery · beneficiary, each naming its **owning system**) +
+a `/protection/[id]` detail page + **Insure Pro** (the Pi Portal "Process a
+Transaction" gate). **Real escrow / capital movement is NOT built** — it is
+hard-gated (below). Not yet deployed.
+
+---
+
+## Pi App Identity
+
+| Field | Value |
+|-------|-------|
+| **App** | TEC Insure |
+| **Domain** | `https://insure.tecosystem.app` |
+| **Pi App ID** | ⏳ TBD — register at Pi Developer Portal · then Vercel `NEXT_PUBLIC_PI_APP_ID` |
+| **APP_SOURCE slug** | `insure` (payment-service resolves `PI_API_KEY_INSURE`) |
+| **PI_SANDBOX** | `false` (Mainnet) |
+
+---
+
+## Insure-Specific Rules (C-129) — READ BEFORE ANY ESCROW CODE
+
+### 🔴 Custody Hard-Gate — escrow holds user funds (P0, like FundX / C-113)
+Escrow = custody of user Pi. Under the Kernel Spec, **payment-service is the only
+Pi custodian** (Invariant #8) — **insure-service NEVER holds Pi**. No
+escrow-contribution / hold / release code ships until **ALL THREE** P0 gates are
+documented-done:
+1. **Legal review FIRST** — holding third-party funds in Pi (money-transmission / e-money) for the target jurisdiction.
+2. **payment-service custody** — every escrowed π is held/moved/released BY `tec-payment-service` (DECIMAL(20,8), outbox, ADR-004). insure-service records STATE + issues intents, never balances.
+3. **SYSTEM governance (C-110)** — escrow types + release/dispute rules approved as governed workflows; full ActorContext + audit trail.
+
+Until all three exist, Insure ships **risk scoring + recovery planning + beneficiary
+records ONLY** (read/plan surfaces) — **NO π custody, NO escrow release.**
+
+### The ownership boundary
+Insure **OWNS**: risk-score *presentation*, protection *records* (beneficiary/recovery
+plans), the escrow *UI/state*. Insure does **NOT OWN**:
+- **Pi custody** → `tec-payment-service` (escrow π held there, never here).
+- **Risk computation** → Analytics (C-105). Insure presents; never re-derives.
+- **Verification** → Zone (C-120) / tec-kyc-service. **Alert routing** → Alert (C-111).
+- **Investment decisions** → FundX (C-113). **Governance** → SYSTEM (C-110).
+
+### Legal boundary (C-129)
+Insure is a **risk platform, NOT an insurance company** (V1–V2). No underwriting, no
+policy issuance, no claims payment from reserves. Insurance Marketplace = V3+ (licensed
+partners; legal structure required first).
+
+### Isolation (P6)
+Risk profiles are private; a counterparty sees an aggregate risk band only. Identity
+from the `tec_user` session cookie server-side — **never** a query param or body. No
+session → fail closed.
+
+**Reference of record:** `yasira82/tec-knowledge-base` —
+`C-129___INSURE_RISK_PROTECTION_RUNTIME.md` (charter) + `C-12_Dual_Mode_Payment.md`
+(payment anti-regression) + `C-123` (session/cookies) + `C-71` (financial integrity).
 
 ---
 
@@ -43,6 +108,8 @@ if (isHubNavigation() || !(window as any).Pi || !piReady) {
 }
 // Mode 2: standalone — createPaymentRecord() then createU2APayment() (src/lib/pi-payment.ts)
 ```
+> Insure Pro (subscription) is the only buy flow. Approve under `PI_API_KEY_INSURE`
+> (never the default Hub key — the Analytics approve→502 lesson, C-12 §11).
 
 ### ADR-009 — Unified payment contract
 `amount` is a **number**; gateway path is **`/api/payment/*`** (singular); the only
@@ -61,67 +128,51 @@ Identity is derived from the `tec_user` cookie server-side — **never from the 
 
 ---
 
-## What's included
+## Setup status + Roadmap (C-129 §Build Protocol)
 
 ```
-middleware.ts                              CSRF (double-submit OR Origin) + page guard
-src/app/api/auth/sso-callback/route.ts     Hub SSO landing (open-redirect-safe)
-src/app/api/auth/refresh/route.ts          token refresh
-src/app/api/bff/payment/{create,approve,complete,resolve-incomplete}/route.ts
-src/app/api/bff/items/route.ts             example domain route (copy this pattern)
-src/app/api/health/route.ts                health endpoint (C-92/C-96) — fail-safe, public, never 500s
-src/lib/pi-payment.ts                      createPaymentRecord + createU2APayment
-src/lib/pi/PiRuntime.ts                    PAL — single choke-point for window.Pi.* (R1)
-src/lib/pi/PiCircuitBreaker.ts             CLOSED→OPEN→HALF_OPEN (3 fails → 60s)
-src/lib/flags.ts                           feature flags (NEXT_PUBLIC_FLAG_*) + useFlag
-src/lib/observability/logger.ts            structured JSON logger (log.info/warn/error) — no silent failures (C-96)
-src/lib/observability/reportError.ts       Sentry-ready error reporter (single swap-point)
-src/app/privacy/page.tsx · terms/page.tsx  Pi Portal legal pages
-src/styles/tec-design-tokens.css           import in app/layout.tsx
-.github/workflows/ci.yml                   payment-policy + CSRF guard + lint/typecheck/test/build
-```
+Insure V0/V1 — Risk Protection preview (customized from template):
+  ✅ package.json name = tec-insure · APP_SOURCE = 'insure'
+  ✅ sso-callback ALLOWED_AUDIENCES → insure.tecosystem.app + tec-insure.vercel.app
+  ✅ privacy + terms → TEC Insure / insure.tecosystem.app
+  ✅ NEW-A: no NEXT_PUBLIC_API_GATEWAY_URL / Railway host in the client bundle
+  ✅ /app themed: risk score + protection surfaces (read-only) + Insure Pro (real Pi U2A)
+  ✅ /protection/[id] detail + BFF /api/bff/insure/protection (sample, read-only)
 
-**v2 (production-ready by default):** every new app ships
-- `/api/health` — uniform C-92 signal (platform health runtime + observability scrape + SLO/runtime-evidence loop);
-- structured `log` + `reportError` — use `log.error`/`reportError` in catch blocks (a silent error handler is an invisible failure, C-96; `reportError` is the one place to wire Sentry per app);
-- `PiRuntime` (PAL) + `PiCircuitBreaker` — never call `window.Pi.*` directly; go through PiRuntime so an SDK change is a one-file fix (R1) and flapping is contained;
-- `flags.ts` — feature flags from day one (`NEXT_PUBLIC_FLAG_<NAME>`);
-- coverage gate — `npm run test:coverage` (add devDep `@vitest/coverage-v8`; 60% floor, raise as the app grows).
+Next (before live):
+  □ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
+    API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · PI_SANDBOX=false.
+  □ payment-service: set PI_API_KEY_INSURE on Railway (approve→502 otherwise, C-12 §11).
+  □ Hub SSO: add insure.tecosystem.app + tec-insure.vercel.app to Hub /api/auth/sso
+    ALLOWED_TARGETS + Hub domain registry.
+  □ Deploy (Vercel) + runtime-verify login (C-123) + a real Insure Pro payment
+    Mode 1 (Hub) AND Mode 2 (standalone).
 
----
-
-## New app setup checklist
-
-```
-□ package.json: set "name"
-□ middleware.ts: adjust PROTECTED_ROUTES
-□ sso-callback/route.ts: set ALLOWED_AUDIENCES + DEFAULT_REDIRECT to your domain
-□ src/lib/pi-payment.ts + payment/create: set APP_SOURCE slug
-□ privacy/page.tsx + terms/page.tsx: set APP / DOMAIN / governing law / contacts
-□ Add ADR-007 isHubNavigation() guard to every buy handler
-□ .env: API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · NEXT_PUBLIC_PI_APP_ID · PI_SANDBOX=false (prod)
-□ Pi Developer Portal: register domain + App ID; set /privacy + /terms URLs
-□ Verify a real Pi payment Mode 1 (via Hub) AND Mode 2 (standalone)
+Insure V1+ (POST hard-gates — legal + payment-service custody + SYSTEM, C-129 P0):
+  risk score → escrow (TRANSACTION) → dispute resolution → recovery → beneficiary.
+  NONE of the escrow/capital flows ship until the three P0 gates are documented-done.
 ```
 
 ---
 
 ## What NOT To Do
 
+- Do NOT build escrow hold/release/custody before the 3 P0 gates (legal + payment-service + SYSTEM) — C-129
+- Do NOT hold Pi in Insure or compute risk client-side — payment-service custodies, Analytics computes
+- Do NOT present Insure as an insurance company or issue policies (V1–V2 legal boundary)
 - Do NOT validate CSRF in a route handler — middleware only (CI blocks it)
 - Do NOT send `amount` as a string, or use `/payments` / `x-service-secret`
 - Do NOT skip the ADR-007 `isHubNavigation()` guard before `window.Pi`
 - Do NOT store tokens in localStorage; do NOT derive identity from the body
 - Do NOT add `NEXT_PUBLIC_*` for internal service URLs or `INTERNAL_SECRET`
-- Do NOT use an open `redirect` param without the same-origin guard (open redirect)
 
 ---
 
 ## Commit Convention
 
 ```
-feat(scope):  new feature      fix(payment): payment flow fix (test carefully)
-fix(scope):   bug fix          chore(scope): build/config
+feat(insure):  new protection feature   fix(payment): payment flow fix (test carefully)
+fix(insure):   bug fix                   chore(scope):  build/config
 ```
 
 ---
