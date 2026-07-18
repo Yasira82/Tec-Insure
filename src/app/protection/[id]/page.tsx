@@ -2,15 +2,21 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { PROTECTIONS, getProtection, KIND_META, STATUS_META } from '@/lib/insure/protection';
+import { PROTECTIONS, KIND_META, STATUS_META } from '@/lib/insure/protection';
+import { resolveProtectionDetail } from '@/lib/insure/server';
 
+// Pre-render the curated sample slugs; allow live-only backend surfaces to render on
+// demand (the Insure read-surface is the catalog of record — C-129).
 export function generateStaticParams() {
   return PROTECTIONS.map((p) => ({ id: p.id }));
 }
+export const dynamicParams = true;
 
 export default async function ProtectionDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const p = getProtection(id);
+  // Resolve from the live Insure read-surface; fall back to the curated sample so
+  // the page never 500s. A live 404 is authoritative → notFound().
+  const { protection: p } = await resolveProtectionDetail(id);
   if (!p) notFound();
 
   const k = KIND_META[p.kind];

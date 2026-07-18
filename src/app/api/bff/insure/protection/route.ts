@@ -1,16 +1,30 @@
-import { NextResponse } from 'next/server';
-import { RISK_SCORE, PROTECTIONS } from '@/lib/insure/protection';
+import { NextRequest, NextResponse } from 'next/server';
+import { resolveOwnProtection } from '@/lib/insure/server';
 
 // GET /api/bff/insure/protection — the Risk Protection surface (C-129), read-only.
 // Insure is the System of Protection: it PRESENTS a risk score and DESCRIBES the
 // escrow / recovery / beneficiary surfaces. It moves NO Pi — escrow custody is
-// hard-gated to tec-payment-service (Invariant #8). This V1 serves a curated
-// SAMPLE (source:'sample'); when live it proxies the caller's OWN risk data
-// (identity from the session cookie, never a param — P6), risk computed by
-// Analytics, custody by payment-service.
-export function GET() {
+// hard-gated to tec-payment-service (Invariant #8). Identity is derived from the
+// `tec_user` session cookie server-side — NEVER a query param or body (P6). The
+// owner is passed to the backend (the Insure read-surface); on no session /
+// unreachable backend, the curated sample is served so the page is never blank.
+// Risk is computed by Analytics; Insure never re-derives it.
+function ownerFromSession(req: NextRequest): string | null {
+  try {
+    const raw = req.cookies.get('tec_user')?.value ?? '';
+    if (!raw) return null;
+    let u: Record<string, unknown>;
+    try { u = JSON.parse(raw); } catch { u = JSON.parse(decodeURIComponent(raw)); }
+    const owner = (u.piUsername ?? u.username) as string | undefined;
+    return owner && owner.trim() ? owner : null;
+  } catch { return null; }
+}
+
+export async function GET(req: NextRequest) {
+  const owner = ownerFromSession(req);
+  const { risk, protections, source } = await resolveOwnProtection(owner);
   return NextResponse.json(
-    { source: 'sample', risk: RISK_SCORE, protections: PROTECTIONS },
+    { source, risk, protections },
     { headers: { 'Cache-Control': 'private, max-age=60' } },
   );
 }

@@ -3,13 +3,32 @@
 // TEC Insure — Risk Protection home (C-129), read-only V1.
 // Presents a risk score + the protection surfaces (escrow/recovery/beneficiary).
 // Moves NO Pi: escrow custody is hard-gated to payment-service (Invariant #8).
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { RISK_SCORE, PROTECTIONS, KIND_META, STATUS_META } from '@/lib/insure/protection';
+import { RISK_SCORE, PROTECTIONS, KIND_META, STATUS_META, type RiskScore, type Protection } from '@/lib/insure/protection';
 import InsurePro from './components/InsurePro';
 
 export default function InsureHome() {
-  const r = RISK_SCORE;
+  // The caller's OWN risk snapshot + the protection catalog — fetched from the BFF
+  // (identity from the session cookie, P6), falling back to the curated sample so the
+  // page is never blank. Insure presents risk; it never re-derives it (custody +
+  // computation stay with payment-service + Analytics).
+  const [r, setRisk] = useState<RiskScore>(RISK_SCORE);
+  const [protections, setProtections] = useState<Protection[]>(PROTECTIONS);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/bff/insure/protection', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((d) => {
+        if (!alive || !d) return;
+        if (d.risk) setRisk(d.risk);
+        if (Array.isArray(d.protections)) setProtections(d.protections);
+      })
+      .catch(() => { /* keep the sample */ });
+    return () => { alive = false; };
+  }, []);
+
   return (
     <main style={{ minHeight: '100vh', background: TEC_COLORS.bg, color: '#e7e7ea', padding: '32px 22px', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -48,7 +67,7 @@ export default function InsureHome() {
         {/* Protection surfaces */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 32, marginBottom: 12 }}>Protection surfaces</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
-          {PROTECTIONS.map((p) => {
+          {protections.map((p) => {
             const k = KIND_META[p.kind]; const s = STATUS_META[p.status];
             return (
               <Link key={p.id} href={`/protection/${p.id}`} style={{ textDecoration: 'none' }}>
