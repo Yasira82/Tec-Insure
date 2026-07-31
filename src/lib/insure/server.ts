@@ -1,5 +1,5 @@
 import {
-  RISK_SCORE, PROTECTIONS, getProtection,
+  PROTECTIONS, getProtection,
   type Protection, type ProtectionKind, type ProtectionStatus,
   type RiskScore, type RiskDimension,
 } from './protection';
@@ -7,9 +7,10 @@ import {
 // Server-only Insure backend access (C-129). Calls the real Insure read-surface
 // (identity-service) via the gateway with the inter-service key, and maps the
 // backend rows to the frontend shape. READ-ONLY (Custody Hard-Gate): there is no
-// escrow/custody call here — Insure holds no Pi. Everything degrades to the curated
-// sample so the page is never blank / never 500s. NEW-A: the gateway URL is
-// server-only (API_GATEWAY_URL) — never shipped to the client.
+// escrow/custody call here — Insure holds no Pi. Real data end-to-end (C-135 §4):
+// the risk score is the user's OWN data (null unless live — never a fabricated
+// sample); the protection surfaces are Insure's definitional catalog. NEW-A: the
+// gateway URL is server-only (API_GATEWAY_URL) — never shipped to the client.
 const GW = process.env.API_GATEWAY_URL ?? '';
 
 const gwHeaders = () => ({
@@ -53,15 +54,16 @@ export function riskFromBackend(r: Record<string, unknown>): RiskScore {
 }
 
 export interface ResolvedProtectionSurface {
-  risk:        RiskScore;
-  protections: Protection[];
-  source:      'live' | 'sample';
+  risk:        RiskScore | null;   // the caller's OWN risk — null unless live
+  protections: Protection[];       // Insure's definitional protection catalog
+  source:      'live' | 'catalog';
 }
 
-// The caller's OWN risk snapshot + the protection catalog — live backend first,
-// curated sample as fallback. `owner` is derived from the session by the BFF (never
-// a client param, P6). A live snapshot may be absent (new user) → keep the sample
-// risk but use the live catalog.
+// The caller's OWN risk snapshot + the protection catalog. Real data end-to-end
+// (C-135 §4): the risk score is user data — null unless the live backend returns a
+// snapshot (never a fabricated sample, even on a live-but-empty read). The
+// protection surfaces are Insure's definitional catalog (shown always). `owner` is
+// derived from the session by the BFF (never a client param, P6).
 export async function resolveOwnProtection(owner: string | null): Promise<ResolvedProtectionSurface> {
   if (GW && owner) {
     try {
@@ -74,21 +76,22 @@ export async function resolveOwnProtection(owner: string | null): Promise<Resolv
         const riskRow = data?.data?.risk;
         if (Array.isArray(rows)) {
           return {
-            risk:        riskRow ? riskFromBackend(riskRow as Record<string, unknown>) : RISK_SCORE,
+            risk:        riskRow ? riskFromBackend(riskRow as Record<string, unknown>) : null,
             protections: rows.map((p) => protectionFromBackend(p as Record<string, unknown>)),
             source:      'live',
           };
         }
       }
-    } catch { /* fall through to the curated sample */ }
+    } catch { /* fall through to the definitional catalog (risk unknown) */ }
   }
-  return { risk: RISK_SCORE, protections: PROTECTIONS, source: 'sample' };
+  return { risk: null, protections: PROTECTIONS, source: 'catalog' };
 }
 
-export interface ResolvedProtection { protection: Protection | null; source: 'live' | 'sample'; }
+export interface ResolvedProtection { protection: Protection | null; source: 'live' | 'catalog'; }
 
-// One protection surface by id — live backend first, sample fallback. A live 404 is
-// authoritative (protection: null, source: 'live').
+// One protection surface by id from the definitional catalog — live backend first,
+// local catalog otherwise (the surfaces are Insure's own product content, not user
+// data). A live 404 is authoritative (protection: null, source: 'live').
 export async function resolveProtectionDetail(id: string): Promise<ResolvedProtection> {
   if (GW) {
     try {
@@ -101,7 +104,7 @@ export async function resolveProtectionDetail(id: string): Promise<ResolvedProte
         if (p) return { protection: protectionFromBackend(p as Record<string, unknown>), source: 'live' };
       }
       if (res.status === 404) return { protection: null, source: 'live' };
-    } catch { /* fall through to the curated sample */ }
+    } catch { /* fall through to the definitional catalog */ }
   }
-  return { protection: getProtection(id), source: 'sample' };
+  return { protection: getProtection(id), source: 'catalog' };
 }
