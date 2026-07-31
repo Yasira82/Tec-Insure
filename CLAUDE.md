@@ -24,7 +24,7 @@ domain / slug / legal + a themed home (**risk score** + the protection surfaces:
 escrow · dispute · recovery · beneficiary, each naming its **owning system**) +
 a `/protection/[id]` detail page + **Insure Pro** (the Pi Portal "Process a
 Transaction" gate). **Real escrow / capital movement is NOT built** — it is
-hard-gated (below). Not yet deployed.
+hard-gated (below). Deployed (Mainnet) · Pi App ID registered · env set · payment live · referral growth loop wired (C-133).
 
 ---
 
@@ -34,7 +34,7 @@ hard-gated (below). Not yet deployed.
 |-------|-------|
 | **App** | TEC Insure |
 | **Domain** | `https://insure.tecosystem.app` |
-| **Pi App ID** | ⏳ TBD — register at Pi Developer Portal · then Vercel `NEXT_PUBLIC_PI_APP_ID` |
+| **Pi App ID** | ✅ Registered (Mainnet) · Vercel `NEXT_PUBLIC_PI_APP_ID` |
 | **APP_SOURCE slug** | `insure` (payment-service resolves `PI_API_KEY_INSURE`) |
 | **PI_SANDBOX** | `false` (Mainnet) |
 

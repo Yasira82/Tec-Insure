@@ -4,6 +4,7 @@
 // Presents a risk score + the protection surfaces (escrow/recovery/beneficiary).
 // Moves NO Pi: escrow custody is hard-gated to payment-service (Invariant #8).
 import { useEffect, useState } from 'react';
+import { InviteCard } from '@/components/referral/InviteCard';
 import Link from 'next/link';
 import { TEC_COLORS } from '@yasser172/tec-ui';
 import { PROTECTIONS, KIND_META, STATUS_META, type RiskScore, type Protection } from '@/lib/insure/protection';
@@ -106,6 +107,7 @@ export default function InsureHome() {
         {/* Insure Pro */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 32, marginBottom: 12 }}>Upgrade</h2>
         <InsurePro />
+        <InviteCard />
       </div>
     </main>
   );
