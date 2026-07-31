@@ -6,9 +6,10 @@ import { resolveOwnProtection } from '@/lib/insure/server';
 // escrow / recovery / beneficiary surfaces. It moves NO Pi — escrow custody is
 // hard-gated to tec-payment-service (Invariant #8). Identity is derived from the
 // `tec_user` session cookie server-side — NEVER a query param or body (P6). The
-// owner is passed to the backend (the Insure read-surface); on no session /
-// unreachable backend, the curated sample is served so the page is never blank.
-// Risk is computed by Analytics; Insure never re-derives it.
+// owner is passed to the backend (the Insure read-surface). The protection surfaces
+// are Insure's definitional catalog; risk is the user's OWN data → null with no
+// session / unreachable backend, never a fabricated sample (C-135 §4). Risk is
+// computed by Analytics; Insure never re-derives it.
 function ownerFromSession(req: NextRequest): string | null {
   try {
     const raw = req.cookies.get('tec_user')?.value ?? '';

@@ -1,21 +1,16 @@
-// TEC Insure — protection surface detail (C-129), read-only, statically generated.
+// TEC Insure — protection surface detail (C-129), read-only. The protection
+// surfaces are Insure's definitional catalog. Rendered dynamically (resolveProtection
+// does a no-store gateway fetch); a live 404 is authoritative → notFound().
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { PROTECTIONS, KIND_META, STATUS_META } from '@/lib/insure/protection';
+import { KIND_META, STATUS_META } from '@/lib/insure/protection';
 import { resolveProtectionDetail } from '@/lib/insure/server';
 
-// Pre-render the curated sample slugs; allow live-only backend surfaces to render on
-// demand (the Insure read-surface is the catalog of record — C-129).
-export function generateStaticParams() {
-  return PROTECTIONS.map((p) => ({ id: p.id }));
-}
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 export default async function ProtectionDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // Resolve from the live Insure read-surface; fall back to the curated sample so
-  // the page never 500s. A live 404 is authoritative → notFound().
   const { protection: p } = await resolveProtectionDetail(id);
   if (!p) notFound();
 
