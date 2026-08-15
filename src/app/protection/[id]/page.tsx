@@ -41,7 +41,7 @@ export default async function ProtectionDetail({ params }: { params: Promise<{ i
 
         {p.status === 'gated' && (
           <p style={{ marginTop: 20, fontSize: 12.5, opacity: 0.7, lineHeight: 1.6, borderLeft: `2px solid ${STATUS_META.gated.tone}`, paddingLeft: 12 }}>
-            <strong>Gated (C-129 P0).</strong> This surface holds user funds, so no real flow ships until
+            <strong>Gated.</strong> This surface holds user funds, so no real flow ships until
             legal review + tec-payment-service custody + SYSTEM governance are all done. Until then it is a
             read-only description — Insure never custodies Pi (Kernel Invariant #8).
           </p>

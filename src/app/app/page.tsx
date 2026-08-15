@@ -98,7 +98,7 @@ export default function InsureHome() {
 
         {/* Custody boundary note */}
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
-          <strong>Custody boundary (C-129).</strong> Insure never holds your Pi. Escrow is custodied by
+          <strong>Custody boundary.</strong> Insure never holds your Pi. Escrow is custodied by
           tec-payment-service only (Kernel Invariant #8); real hold/release ships after legal review +
           payment-service custody + SYSTEM governance. Risk figures are computed by Analytics and are
           indicative — never financial truth.

@@ -79,7 +79,7 @@ export const PROTECTIONS: Protection[] = [
       'Buyer funds an escrow → payment-service custodies the Pi (never insure-service).',
       'Seller is notified and ships / delivers.',
       'On confirmation (or a governed dispute resolution), payment-service releases or refunds.',
-      'GATED: no hold/release ships until legal review + payment-service custody + SYSTEM governance (C-129 P0).',
+      'GATED: no hold/release ships until legal review + payment-service custody + SYSTEM governance.',
     ],
   },
   {
