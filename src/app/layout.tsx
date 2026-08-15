@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import '@/styles/tec-design-tokens.css';
 
 export const metadata: Metadata = {
-  title:       'TEC Insure — Risk Protection Runtime',
+  title:       'TEC Insure — Protection',
   description: 'TEC Insure — risk scoring, escrow, and recovery for the Pi economy (read-only).',
 };
 

@@ -37,7 +37,7 @@ export default function InsureHome() {
           <div style={{ fontSize: 34 }}>🛡️</div>
           <h1 style={{ color: TEC_COLORS.gold, margin: '4px 0 2px', fontSize: 26 }}>TEC Insure</h1>
           <p style={{ opacity: 0.7, margin: 0, fontSize: 14 }}>
-            Risk Protection Runtime — protection is infrastructure, not a product. Read-only preview.
+            Protection for you, your assets, and your activity. Read-only preview.
           </p>
         </header>
 
@@ -69,8 +69,8 @@ export default function InsureHome() {
           <section style={{ marginTop: 24, padding: '28px 20px', background: TEC_COLORS.surface, borderRadius: 14, textAlign: 'center' }}>
             <div style={{ fontWeight: 700 }}>Your risk score</div>
             <p style={{ opacity: 0.65, fontSize: 13, lineHeight: 1.6, maxWidth: 460, margin: '6px auto 0' }}>
-              Sign in with Pi to see your personal risk snapshot. Risk is computed by Analytics from real
-              activity and presented here — it appears once you have a profile.
+              Sign in with Pi to see your personal risk snapshot. It&apos;s calculated from your
+              real activity and appears once you have a profile.
             </p>
           </section>
         )}
@@ -98,10 +98,10 @@ export default function InsureHome() {
 
         {/* Custody boundary note */}
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
-          <strong>Custody boundary.</strong> Insure never holds your Pi. Escrow is custodied by
-          tec-payment-service only (Kernel Invariant #8); real hold/release ships after legal review +
-          payment-service custody + SYSTEM governance. Risk figures are computed by Analytics and are
-          indicative — never financial truth.
+          <strong>Your money stays safe.</strong> Insure never holds your Pi — any funds are
+          held securely by the payment system. Escrow and claims will open once the
+          proper legal and safety steps are complete. Risk figures shown are estimates,
+          not financial advice.
         </p>
 
         {/* Insure Pro */}
