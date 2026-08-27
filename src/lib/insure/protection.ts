@@ -132,7 +132,7 @@ export const KIND_META: Record<ProtectionKind, { label: string; icon: string }> 
 
 export const STATUS_META: Record<ProtectionStatus, { label: string; tone: string }> = {
   'live-readonly': { label: 'Available (read-only)', tone: '#22C55E' },
-  gated:           { label: 'Gated — P0 pending',    tone: '#FBBF24' },
+  gated:           { label: 'Gated — P0 pending',    tone: '#FBB44A' },
   planned:         { label: 'Planned',               tone: '#8B5CF6' },
 };
 
