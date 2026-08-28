@@ -139,13 +139,13 @@ Insure V0/V1 — Risk Protection preview (customized from template):
   ✅ /app themed: risk score + protection surfaces (read-only) + Insure Pro (real Pi U2A)
   ✅ /protection/[id] detail + BFF /api/bff/insure/protection (sample, read-only)
 
-Next (before live):
-  □ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
+Live on Mainnet — all complete (SSoT: architecture/app-fleet.yaml):
+  ✅ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
     API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · PI_SANDBOX=false.
-  □ payment-service: set PI_API_KEY_INSURE on Railway (approve→502 otherwise, C-12 §11).
-  □ Hub SSO: add insure.tecosystem.app + tec-insure.vercel.app to Hub /api/auth/sso
+  ✅ payment-service: set PI_API_KEY_INSURE on Railway (approve→502 otherwise, C-12 §11).
+  ✅ Hub SSO: add insure.tecosystem.app + tec-insure.vercel.app to Hub /api/auth/sso
     ALLOWED_TARGETS + Hub domain registry.
-  □ Deploy (Vercel) + runtime-verify login (C-123) + a real Insure Pro payment
+  ✅ Deploy (Vercel) + runtime-verify login (C-123) + a real Insure Pro payment
     Mode 1 (Hub) AND Mode 2 (standalone).
 
 Insure V1+ (POST hard-gates — legal + payment-service custody + SYSTEM, C-129 P0):
