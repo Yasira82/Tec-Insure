@@ -12,6 +12,7 @@ import { HUB_HOSTS }                 from '@/lib/pi-network';
 const ALLOWED_AUDIENCES = [
   'https://tec-insure.vercel.app',
   'https://insure.tecosystem.app',
+  'https://insure-test.tecosystem.app',
 ];
 const DEFAULT_REDIRECT = '/app';
 
