@@ -14,7 +14,7 @@ import {
   createU2APayment,
 } from '@/lib/pi-payment';
 
-const INSURE_PRO = { id: 'insure-pro', name: 'Insure Pro (monthly)', price: 10 };
+const INSURE_PRO = { id: 'insure_pro_monthly', name: 'Insure Pro (monthly)', price: 10 };
 
 export default function InsurePro() {
   const [piReady, setPiReady] = useState(false);
@@ -68,7 +68,7 @@ export default function InsurePro() {
     if (!internalId) { setStatus('Could not start payment.'); return; }
 
     setStatus('Awaiting Pi approval…');
-    const result = await createU2APayment(price, name, { item_id: id }, internalId);
+    const result = await createU2APayment(price, name, { item_id: id, plan: 'PRO' }, internalId);
     setStatus(
       result.success ? `✅ Subscribed — txid ${result.txid}` :
       result.status === 'cancelled' ? 'Payment cancelled.' :
