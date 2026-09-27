@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { TEC_COLORS } from '@yasser172/tec-ui';
 import { useTranslation } from '@/lib/i18n';
+import { useMe } from '@/lib-client/hooks/useMe';
 import { PROTECTIONS, KIND_META, STATUS_META, type RiskScore, type Protection } from '@/lib/insure/protection';
 import InsurePro from './components/InsurePro';
 import { BottomNav, type InsTab } from './components/BottomNav';
@@ -15,6 +16,7 @@ import { SettingsView } from './components/SettingsView';
 
 export default function InsureHome() {
   const { t } = useTranslation();
+  const me = useMe();
   const [tab, setTab] = useState<InsTab>('home');
 
   // The protection surfaces are Insure's definitional catalog (shown always). The
@@ -78,11 +80,14 @@ export default function InsureHome() {
               </section>
             ) : (
               <section style={{ marginTop: 24, padding: '28px 20px', background: TEC_COLORS.surface, borderRadius: 14, textAlign: 'center' }}>
-                <div style={{ fontWeight: 700 }}>Your risk score</div>
-                <p style={{ opacity: 0.65, fontSize: 13, lineHeight: 1.6, maxWidth: 460, margin: '6px auto 0' }}>
-                  Sign in with Pi to see your personal risk snapshot. It&apos;s calculated from your
-                  real activity and appears once you have a profile.
-                </p>
+                <div style={{ fontWeight: 700 }}>{t.insure.riskEmpty.heading}</div>
+                {/* C10 — a signed-in (even Pro) user was told to "Sign in with Pi".
+                    Nothing is said until /me answers. */}
+                {!me.loading && (
+                  <p style={{ opacity: 0.65, fontSize: 13, lineHeight: 1.6, maxWidth: 460, margin: '6px auto 0' }}>
+                    {me.authenticated ? t.insure.riskEmpty.noProfile : t.insure.riskEmpty.signedOut}
+                  </p>
+                )}
               </section>
             )}
 
