@@ -27,6 +27,12 @@ export const en = {
     tagline: 'Protection for you, your assets, and your activity. Read-only preview.',
     nav: { home: 'Home', protection: 'Protection', pro: 'Pro', settings: 'Settings' },
     protectionSurfaces: 'Protection surfaces',
+    // C10 — "no session" and "no profile yet" are different states.
+    riskEmpty: {
+      heading:   'Your risk score',
+      signedOut: 'Sign in with Pi to see your personal risk snapshot. It is calculated from your real activity.',
+      noProfile: 'Your risk snapshot appears once you have activity on TEC — it is calculated from your real activity, never estimated from nothing.',
+    },
     upgrade: 'Upgrade',
     settings: {
       profile: 'Profile', planFree: 'Free', planPro: 'Pro',

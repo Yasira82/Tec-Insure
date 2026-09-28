@@ -27,6 +27,11 @@ export const ar = {
     tagline: 'حماية ليك ولأصولك ولنشاطك. معاينة للقراءة فقط.',
     nav: { home: 'الرئيسية', protection: 'الحماية', pro: 'Pro', settings: 'الإعدادات' },
     protectionSurfaces: 'أسطح الحماية',
+    riskEmpty: {
+      heading:   'درجة المخاطر بتاعتك',
+      signedOut: 'سجّل الدخول بـ Pi عشان تشوف لمحة المخاطر الشخصية بتاعتك. بتتحسب من نشاطك الحقيقي.',
+      noProfile: 'لمحة المخاطر بتاعتك هتظهر لما يبقى ليك نشاط على TEC — بتتحسب من نشاطك الحقيقي، مش بتتخمّن من ولا حاجة.',
+    },
     upgrade: 'الترقية',
     settings: {
       profile: 'الملف الشخصي', planFree: 'مجاني', planPro: 'Pro',
