@@ -37,19 +37,39 @@ export function protectionFromBackend(p: Record<string, unknown>): Protection {
   };
 }
 
+const RISK_BANDS: readonly RiskScore['band'][] = ['LOW', 'MODERATE', 'ELEVATED'];
+
+/** A number the backend actually sent — never one filled in for it. */
+const sent = (v: unknown): number | null =>
+  v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? null : Number(v);
+
 // backend (insure_risk_profiles) → frontend RiskScore (presented, never re-derived).
-export function riskFromBackend(r: Record<string, unknown>): RiskScore {
+//
+// Unknown is never a finding (TEC evidence rule 1). This used to read a missing band
+// as 'MODERATE' and a missing number as 0 — telling a person their risk had been
+// assessed as middling when nothing had been assessed. An incomplete snapshot is no
+// snapshot: null, which the screen words as "no risk profile yet". A dimension with
+// no value is left out rather than drawn as an empty bar.
+export function riskFromBackend(r: Record<string, unknown>): RiskScore | null {
+  const band    = String(r.band ?? '') as RiskScore['band'];
+  const overall = sent(r.overall);
+  if (!RISK_BANDS.includes(band) || overall === null) return null;
+
   const dims = Array.isArray(r.dimensions) ? (r.dimensions as Record<string, unknown>[]) : [];
   return {
-    overall: Number(r.overall ?? 0),
-    band:    String(r.band ?? 'MODERATE') as RiskScore['band'],
-    note:    String(r.note ?? ''),
-    dimensions: dims.map((d): RiskDimension => ({
-      key:    String(d.key ?? ''),
-      label:  String(d.label ?? ''),
-      value:  Number(d.value ?? 0),
-      weight: Number(d.weight ?? 0),
-    })),
+    overall,
+    band,
+    note: String(r.note ?? ''),
+    dimensions: dims.flatMap((d): RiskDimension[] => {
+      const value  = sent(d.value);
+      const weight = sent(d.weight);
+      return value === null || weight === null ? [] : [{
+        key:   String(d.key ?? ''),
+        label: String(d.label ?? ''),
+        value,
+        weight,
+      }];
+    }),
   };
 }
 
