@@ -1,5 +1,7 @@
 'use client';
 
+import { SignInGate } from '@/components/pi/SignInGate';
+
 // TEC Insure — Risk Protection home (C-129), read-only V1.
 // Presents a risk score + the protection surfaces (escrow/recovery/beneficiary).
 // Moves NO Pi: escrow custody is hard-gated to payment-service (Invariant #8).
@@ -14,7 +16,7 @@ import InsurePro from './components/InsurePro';
 import { BottomNav, type InsTab } from './components/BottomNav';
 import { SettingsView } from './components/SettingsView';
 
-export default function InsureHome() {
+function InsureHome() {
   const { t } = useTranslation();
   const me = useMe();
   const [tab, setTab] = useState<InsTab>('home');
@@ -140,4 +142,11 @@ export default function InsureHome() {
       <BottomNav active={tab} onSelect={setTab} />
     </main>
   );
+}
+
+// The door: a sign-in button before any screen when there is no session
+// (SignInGate — C-123 §10; owner, 2026-10-06). A visit from the Hub arrives
+// signed in (§12) and goes straight through.
+export default function InsureHomeGated() {
+  return <SignInGate><InsureHome /></SignInGate>;
 }
