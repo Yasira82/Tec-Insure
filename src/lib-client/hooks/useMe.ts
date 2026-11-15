@@ -3,8 +3,8 @@
 // Server-resolved session identity (C-123 §3). The client must NOT decide "who am I?"
 // from document.cookie — Pi Browser stores the tec_user cookie so the SERVER sees it
 // while hiding it from client JS, so getStoredUser()/usePiAuth() read null and the real
-// Pi username never appears ("TEC Member" / "Not signed in"). /api/auth/me reads the
-// request cookie server-side and returns the actual user. Fail closed (P6).
+// Pi username never appears. /api/auth/me reads the request cookie server-side and
+// returns the actual user. Fail closed (P6).
 import { useEffect, useState } from 'react';
 
 interface Me {
@@ -18,9 +18,9 @@ interface Me {
    *
    * It exists for one observation: an app opened from the Hub's Quest rendered
    * `/app` — which the page guard only serves to a WHOLE session — and the same
-   * page then said "Not signed in". A check opened by hand is a full navigation
-   * and says the session is fine; only this request, from this page, can say
-   * what it was told.
+   * page then said "Not signed in", on some visits and not others. A check opened
+   * by hand is a full navigation and says the session is fine; only this request,
+   * from this page, can say what it was told.
    */
   reason: string | null;
 }

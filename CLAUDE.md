@@ -48,7 +48,7 @@ Pi custodian** (Invariant #8) — **insure-service NEVER holds Pi**. No
 escrow-contribution / hold / release code ships until **ALL THREE** P0 gates are
 documented-done:
 1. **Legal review FIRST** — holding third-party funds in Pi (money-transmission / e-money) for the target jurisdiction.
-2. **payment-service custody** — every escrowed π is held/moved/released BY `tec-payment-service` (DECIMAL(20,8), outbox, ADR-004). insure-service records STATE + issues intents, never balances.
+2. **payment-service custody** — every escrowed π is held/moved/released BY `tec-payment-service` (DECIMAL(20,8), its outbox; ADR-009 contract). insure-service records STATE + issues intents, never balances.
 3. **SYSTEM governance (C-110)** — escrow types + release/dispute rules approved as governed workflows; full ActorContext + audit trail.
 
 Until all three exist, Insure ships **risk scoring + recovery planning + beneficiary

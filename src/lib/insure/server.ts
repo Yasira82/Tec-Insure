@@ -3,6 +3,7 @@ import {
   type Protection, type ProtectionKind, type ProtectionStatus,
   type RiskScore, type RiskDimension,
 } from './protection';
+import { gatewayFetch } from '@/lib/gateway-fetch';
 
 // Server-only Insure backend access (C-129). Calls the real Insure read-surface
 // (identity-service) via the gateway with the inter-service key, and maps the
@@ -87,7 +88,7 @@ export interface ResolvedProtectionSurface {
 export async function resolveOwnProtection(owner: string | null): Promise<ResolvedProtectionSurface> {
   if (GW && owner) {
     try {
-      const res = await fetch(`${GW}/api/identity/insure/risk/${encodeURIComponent(owner)}`, {
+      const res = await gatewayFetch(`${GW}/api/identity/insure/risk/${encodeURIComponent(owner)}`, {
         headers: gwHeaders(), cache: 'no-store',
       });
       if (res.ok) {
@@ -115,7 +116,7 @@ export interface ResolvedProtection { protection: Protection | null; source: 'li
 export async function resolveProtectionDetail(id: string): Promise<ResolvedProtection> {
   if (GW) {
     try {
-      const res = await fetch(`${GW}/api/identity/insure/protection/${encodeURIComponent(id)}`, {
+      const res = await gatewayFetch(`${GW}/api/identity/insure/protection/${encodeURIComponent(id)}`, {
         headers: gwHeaders(), cache: 'no-store',
       });
       if (res.ok) {
